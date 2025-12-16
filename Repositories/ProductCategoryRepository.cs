@@ -10,7 +10,7 @@ public class ProductCategoryRepository : IProductCategoryRepository
     public async Task<List<ProductCategory>> GetProductCategoriesAsync()
     {
         var result = await ProductCategoryDAO.Instance.Get();
-        return result.ToList();
+        return result?.ToList() ?? new List<ProductCategory>();
     }
 
     public async Task<ProductCategory?> GetProductCategoryByIdAsync(Guid categoryId)

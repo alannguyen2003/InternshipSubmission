@@ -4,6 +4,7 @@ using DataAccessObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessObjects.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251216074256_AddOrderNoForProductTable")]
+    partial class AddOrderNoForProductTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,13 +31,8 @@ namespace DataAccessObjects.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Ghi_Chu");
-
                     b.Property<int>("OrderNo")
-                        .HasColumnType("int")
-                        .HasColumnName("Thu_Tu");
+                        .HasColumnType("int");
 
                     b.Property<Guid>("ProductCategoryId")
                         .HasColumnType("uniqueidentifier")
@@ -92,34 +90,6 @@ namespace DataAccessObjects.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("tbl_DM_Loai_San_Pham");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Entities.Supplier", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Ghi_Chu");
-
-                    b.Property<string>("SupplierCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("Ma_NCC");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Ten_NCC");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("tbl_DM_NCC");
                 });
 
             modelBuilder.Entity("BusinessObjects.Entities.UnitPrice", b =>

@@ -9,6 +9,8 @@ public static class ServiceInjection
     {
         services.AddScoped<IUnitPriceRepository, UnitPriceRepository>();
         services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ISupplierRepository, SupplierRepository>();
         return services;
     }
 
@@ -16,6 +18,8 @@ public static class ServiceInjection
     {
         services.AddUnitPriceFeaturesInjection();
         services.AddProductCategoryFeaturesInjection();
+        services.AddProductFeaturesInjection();
+        services.AddSupplierFeaturesInjection();
         return services;
     }
 }

@@ -12,6 +12,10 @@
 
     <ItemGroup>
       <Folder Include="Features\ProductCategory\GetById\Rules\" />
+      <Folder Include="Features\Product\Delete\Rules\" />
+      <Folder Include="Features\Supplier\Create\" />
+      <Folder Include="Features\Supplier\Delete\" />
+      <Folder Include="Features\Supplier\Update\" />
       <Folder Include="Services\Abstraction\" />
     </ItemGroup>
 

@@ -1,0 +1,139 @@
+﻿@page "/products/create"
+@using BusinessObjects.Entities
+@using BusinessObjects.Exceptions
+@using Services.Features.Product.Create.Contracts
+@using Services.Features.Product.Create.Contracts.DTOs
+@using Services.Features.ProductCategory.Get.Contracts
+@using Services.Features.UnitPrice.Get.Contracts
+@rendermode InteractiveServer
+@inject ICreateProductFeature _createProductFeature
+@inject IGetRawUnitPriceFeature _getRawUnitPriceFeature
+@inject IGetRawProductCategoriesFeature _getRawProductCategoriesFeature
+@inject NavigationManager Navigator
+
+<PageTitle>Products</PageTitle>
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Products</a></li>
+                    <li class="breadcrumb-item"><a href="/products">List</a></li>
+                    <li class="breadcrumb-item">Create</li>
+                </ol>
+            </div>
+            <h4 class="page-title">
+                <NavLink href="/products" class="btn btn-primary">Go back</NavLink>
+            </h4>
+        </div>
+    </div>
+</div>     
+<!-- end page title --> 
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Create new product</h4>
+                <p class="text-muted font-14">
+                    ...
+                </p>
+
+                <div class="tab-content">
+                    <div class="tab-pane show active" id="input-types-preview">
+                        <div class="row">
+                            @if (UnitPrices == null || ProductCategories == null)
+                            {
+                                <p>Loading....</p>
+                            }
+                            else
+                            {
+                                <div class="col-lg-6">
+                                    <EditForm Model="CreateProduct" OnValidSubmit="CreateNewProduct">
+                                        <div class="mb-3">
+                                            <label for="productName" class="form-label">Product Name</label>
+                                            <input type="text" id="productName" class="form-control" @bind="CreateProduct.ProductName">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label">Notes</label>
+                                            <input type="text" id="notes" class="form-control" @bind="CreateProduct.Notes">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="unitPrices" class="form-label">Unit Price</label>
+                                            <select @bind="CreateProduct.UnitPriceId" class="form-select" id="unitPrices">
+                                                @foreach (var item in UnitPrices)
+                                                {
+                                                    <option value="@item.Id">@item.UnitPriceName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="productCategories" class="form-label">Product Category</label>
+                                            <select @bind="CreateProduct.ProductCategoryId" class="form-select" id="productCategories">
+                                                @foreach (var item in ProductCategories)
+                                                {
+                                                    <option value="@item.Id">@item.CategoryName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Create</button>
+                                    </EditForm>
+                                </div> <!-- end col -->
+                            }
+
+                        </div>
+                        <!-- end row-->                      
+                    </div> <!-- end preview-->
+                    @if (HasError)
+                    {
+                        <div class="mt-2 alert alert-danger alert-dismissible bg-danger text-white border-0 fade show" role="alert">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <strong>Error - </strong> @Error
+                        </div>
+                    }
+                </div> <!-- end tab-content-->
+            </div> <!-- end card-body -->
+        </div> <!-- end card -->
+    </div><!-- end col -->
+</div><!-- end row -->
+
+@code {
+    private bool HasError { get; set; } = false;
+    private string Error { get; set; }
+    
+    private List<UnitPrice> UnitPrices { get; set; }
+    private List<ProductCategory> ProductCategories { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        UnitPrices = await _getRawUnitPriceFeature.GetAsync();
+        ProductCategories = await _getRawProductCategoriesFeature.GetAsync();
+    }
+
+    private CreateProductDTO CreateProduct { get; set; } = new CreateProductDTO()
+    {
+        ProductName = "",
+        UnitPriceName = "",
+        ProductCategoryName = "",
+        Notes = "",
+    };
+
+    private async Task CreateNewProduct()
+    {
+        try
+        {
+            await _createProductFeature.CreateAsync(CreateProduct);
+            Navigator.NavigateTo("/products");
+        }
+        catch (BusinessException ex)
+        {
+            HasError = true;
+            Error = ex.Message;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

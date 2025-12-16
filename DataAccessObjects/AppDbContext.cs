@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
     public virtual DbSet<UnitPrice> UnitPrices { get; set; }
     public virtual DbSet<ProductCategory> ProductCategories { get; set; }
     public virtual DbSet<Product> Products { get; set; }
+    public virtual DbSet<Supplier> Suppliers { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

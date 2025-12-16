@@ -1,0 +1,151 @@
+﻿@page "/products/update/{id:guid}"
+@using BusinessObjects.Entities
+@using BusinessObjects.Exceptions
+@using Services.Features.Product.Get.Contracts
+@using Services.Features.Product.Update.Contracts
+@using Services.Features.ProductCategory.Get.Contracts
+@using Services.Features.UnitPrice.Get.Contracts
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@inject IGetProductByIdFeature _getProductByIdFeature
+@inject IUpdateProductFeature _updateProductFeature
+@inject IGetRawUnitPriceFeature _getRawUnitPriceFeature
+@inject IGetRawProductCategoriesFeature _getRawProductCategoriesFeature
+
+@inject NavigationManager Navigator
+
+<PageTitle>Products</PageTitle>
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Products</a></li>
+                    <li class="breadcrumb-item"><a href="/products">List</a></li>
+                    <li class="breadcrumb-item">Update</li>
+                </ol>
+            </div>
+            <h4 class="page-title">
+                <NavLink href="/products" class="btn btn-primary">Go back</NavLink>
+            </h4>
+        </div>
+    </div>
+</div>     
+<!-- end page title --> 
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Update product</h4>
+                <p class="text-muted font-14">
+                    ...
+                </p>
+
+                <div class="tab-content">
+                    <div class="tab-pane show active" id="input-types-preview">
+                        <div class="row">
+                            @if (Product is null)
+                            {
+                                <p><em>Loading...</em></p>
+                            }
+                            else
+                            {
+                                <div class="col-lg-6">
+                                    <EditForm Model="Product" OnValidSubmit="UpdateProduct">
+                                        <div class="mb-3">
+                                            <label for="orderNo" class="form-label">Order No</label>
+                                            <input type="text" id="orderNo" disabled class="form-control" @bind="Product.OrderNo">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="productCode" class="form-label">Product Code</label>
+                                            <input type="text" id="productCode" disabled class="form-control" @bind="Product.ProductCode">
+                                        </div>
+                                    
+                                        <div class="mb-3">
+                                            <label for="categoryCode" class="form-label">Product Name </label>
+                                            <input type="text" id="categoryCode" class="form-control" @bind="Product.ProductName">
+                                        </div>
+                                    
+                                        <div class="mb-3">
+                                            <label for="unitPrices" class="form-label">Unit Price</label>
+                                            <select @bind="Product.UnitPriceId" class="form-select" id="unitPrices">
+                                                @foreach (var item in UnitPrices)
+                                                {
+                                                    <option value="@item.Id">@item.UnitPriceName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="productCategories" class="form-label">Product Category</label>
+                                            <select @bind="Product.ProductCategoryId" class="form-select" id="productCategories">
+                                                @foreach (var item in ProductCategories)
+                                                {
+                                                    <option value="@item.Id">@item.CategoryName</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label">Notes</label>
+                                            <input type="text" id="notes" class="form-control" @bind="Product.Notes">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    </EditForm>
+                                </div> <!-- end col -->
+                            }
+
+                        </div>
+                        <!-- end row-->                      
+                    </div> <!-- end preview-->
+                    @if (HasError)
+                    {
+                        <div class="mt-2 alert alert-danger alert-dismissible bg-danger text-white border-0 fade show" role="alert">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <strong>Error - </strong> @Error
+                        </div>
+                    }
+                </div> <!-- end tab-content-->
+            </div> <!-- end card-body -->
+        </div> <!-- end card -->
+    </div><!-- end col -->
+</div><!-- end row -->
+
+@code {
+    private bool HasError { get; set; } = false;
+    private string Error { get; set; }
+
+    [Parameter]
+    public Guid Id { get; set; }
+    
+    private List<ProductCategory> ProductCategories { get; set; }
+    private List<UnitPrice> UnitPrices { get; set; }
+    public Product? Product { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Product = await _getProductByIdFeature.GetByIdAsync(Id);
+        ProductCategories = await _getRawProductCategoriesFeature.GetAsync();
+        UnitPrices = await _getRawUnitPriceFeature.GetAsync();
+    }
+
+    private async Task UpdateProduct()
+    {
+        try
+        {
+            await _updateProductFeature.UpdateAsync(Product);
+            Navigator.NavigateTo("/products");
+        }
+        catch (BusinessException ex)
+        {
+            HasError = true;
+            Error = ex.Message;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

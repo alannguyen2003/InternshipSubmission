@@ -13,6 +13,10 @@ public class Product : Entity
      public string ProductCode { get; set; }
      
      [Required]
+     [Column("Thu_Tu")]
+     public int OrderNo { get; set; }
+     
+     [Required]
      [StringLength(255)]
      [Column("Ten_San_Pham")]
      public string ProductName { get; set; }
@@ -24,6 +28,9 @@ public class Product : Entity
      [Required]
      [Column("Don_Vi_Tinh_ID")]
      public Guid UnitPriceId { get; set; }
+     
+     [Column("Ghi_Chu")]
+     public string? Notes { get; set; }
      
      public virtual UnitPrice UnitPrice { get; set; }
      public virtual ProductCategory ProductCategory { get; set; }

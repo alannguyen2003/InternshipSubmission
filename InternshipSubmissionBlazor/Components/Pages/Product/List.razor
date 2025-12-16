@@ -1,0 +1,99 @@
+﻿@page "/products"
+@using Services.Features.Product.Delete.Contracts
+@using Services.Features.Product.Get.Contracts
+@using Services.Features.Product.Get.Contracts.DTOs
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@inject IGetProductsFeature _getProductsFeature
+@inject IDeleteProductFeature _deleteProductFeature
+@inject NavigationManager Nav
+
+<PageTitle>Products</PageTitle>
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Products</a></li>
+                    <li class="breadcrumb-item active">List</li>
+                </ol>
+            </div>
+            <h4 class="page-title">
+                <NavLink class="btn btn-primary" href="/products/create">Create</NavLink>
+            </h4>
+        </div>
+    </div>
+</div>     
+<!-- end page title --> 
+
+<table class="table table-striped table-centered mb-0">
+    <thead>
+        <tr>
+            <th>Order No</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Unit</th>
+            <th>Notes</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Products == null)
+        {
+            <p>
+                <em>Loading...</em>
+            </p>
+        }
+        else if (Products.Count > 0)
+        {
+            @foreach (var (item, index) in Products.Select((x, i) => (x, i)))
+            {
+                <tr>
+                    <td>@item.OrderNo</td>
+                    <td>@item.ProductCode</td>
+                    <td>@item.ProductName</td>
+                    <td>@item.CategoryName</td>
+                    <td>@item.UnitPrice</td>
+                    <td>@item.Notes</td>
+                    <td class="table-action">
+                        <NavLink class="action-icon"
+                                @onclick="() => UpdateProduct(item.Id)"> <i class="mdi mdi-pencil"></i></NavLink>
+                        <NavLink class="action-icon"
+                                 @onclick="() => DeleteProduct(item.Id)"> <i class="mdi mdi-delete"></i></NavLink>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <p>
+                <em>No elements.</em>
+            </p>
+        }
+    </tbody>
+</table>
+
+@code {
+    public List<ProductDTO>? Products { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Products = await _getProductsFeature.GetProductsAsync();
+    }
+
+    private async Task DeleteProduct(Guid unitId)
+    {
+        await _deleteProductFeature.DeleteAsync(unitId);
+        Products = await _getProductsFeature.GetProductsAsync();
+        StateHasChanged();
+    }
+
+    private async Task UpdateProduct(Guid unitId)
+    {
+        Nav.NavigateTo($"/products/update/{unitId}");
+    }
+}
