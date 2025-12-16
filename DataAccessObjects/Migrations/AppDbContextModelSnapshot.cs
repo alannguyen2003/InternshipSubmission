@@ -22,6 +22,70 @@ namespace DataAccessObjects.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("BusinessObjects.Entities.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductCategoryId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Loai_San_Pham_ID");
+
+                    b.Property<string>("ProductCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("Ma_San_Pham");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Ten_San_Pham");
+
+                    b.Property<Guid>("UnitPriceId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Don_Vi_Tinh_ID");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductCategoryId");
+
+                    b.HasIndex("UnitPriceId");
+
+                    b.ToTable("tbl_DM_San_Pham");
+                });
+
+            modelBuilder.Entity("BusinessObjects.Entities.ProductCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CategoryCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Ma_LSP");
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Ten_LSP");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Ghi_Chu");
+
+                    b.Property<int>("OrderNo")
+                        .HasColumnType("int")
+                        .HasColumnName("Thu_Tu");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tbl_DM_Loai_San_Pham");
+                });
+
             modelBuilder.Entity("BusinessObjects.Entities.UnitPrice", b =>
                 {
                     b.Property<Guid>("Id")
@@ -42,6 +106,35 @@ namespace DataAccessObjects.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("tbl_DM_Don_Vi_Tinh");
+                });
+
+            modelBuilder.Entity("BusinessObjects.Entities.Product", b =>
+                {
+                    b.HasOne("BusinessObjects.Entities.ProductCategory", "ProductCategory")
+                        .WithMany("Products")
+                        .HasForeignKey("ProductCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObjects.Entities.UnitPrice", "UnitPrice")
+                        .WithMany("Products")
+                        .HasForeignKey("UnitPriceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductCategory");
+
+                    b.Navigation("UnitPrice");
+                });
+
+            modelBuilder.Entity("BusinessObjects.Entities.ProductCategory", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("BusinessObjects.Entities.UnitPrice", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

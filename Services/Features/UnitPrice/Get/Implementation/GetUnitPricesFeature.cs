@@ -23,6 +23,7 @@ public class GetUnitPricesFeature : IGetUnitPricesFeature
         {
             UnitPriceDTO unitPriceDTO = new UnitPriceDTO()
             {
+                Id = item.Id,
                 UnitPriceName = item.UnitPriceName,
                 Notes = item.Notes,
             };

@@ -33,7 +33,7 @@ public class CreateUnitPriceFeature : ICreateUnitPriceFeature
 
             await _unitPriceRepository.AddUnitPriceAsync(unitPrice);
         }
-        catch (Exception ex)
+        catch (BusinessException ex)
         {
             throw new BusinessException("400", ex.Message);
         }

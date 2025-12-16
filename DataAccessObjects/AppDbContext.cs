@@ -15,6 +15,8 @@ public class AppDbContext : DbContext
     }
     
     public virtual DbSet<UnitPrice> UnitPrices { get; set; }
+    public virtual DbSet<ProductCategory> ProductCategories { get; set; }
+    public virtual DbSet<Product> Products { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -28,5 +30,16 @@ public class AppDbContext : DbContext
             .AddJsonFile("appsettings.json", true, true)
             .Build();
         return configuration.GetConnectionString("DefaultConnectionString") ?? string.Empty;
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        //Product
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.UnitPrice)
+            .WithMany(u => u.Products);
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.ProductCategory)
+            .WithMany(p => p.Products);
     }
 }

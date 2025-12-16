@@ -1,0 +1,96 @@
+﻿@page "/units"
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@using BusinessObjects.Entities
+@using Services.Features.UnitPrice.Delete.Contracts
+@using Services.Features.UnitPrice.Get.Contracts
+@using Services.Features.UnitPrice.Get.Contracts.DTOs
+@using Services.Features.UnitPrice.GetById.Contracts
+@inject IGetUnitPricesFeature _getUnitPricesFeature
+@inject IDeleteUnitPriceFeature _deleteUnitPriceFeature
+@inject IGetUnitPriceByIdFeature _getUnitPriceByIdFeature
+@inject NavigationManager Nav
+
+<PageTitle>Unit Price</PageTitle>
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Unit Price</a></li>
+                    <li class="breadcrumb-item active">List</li>
+                </ol>
+            </div>
+            <h4 class="page-title">
+                <NavLink class="btn btn-primary" href="/units/create">Create</NavLink>
+            </h4>
+        </div>
+    </div>
+</div>     
+<!-- end page title --> 
+
+<table class="table table-striped table-centered mb-0">
+    <thead>
+        <tr>
+            <th>Order No</th>
+            <th>Unit Price</th>
+            <th>Notes</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (UnitPrices == null)
+        {
+            <p>
+                <em>Loading...</em>
+            </p>
+        }
+        else if (UnitPrices.Count > 0)
+        {
+            @foreach (var (item, index) in UnitPrices.Select((x, i) => (x, i)))
+            {
+                <tr>
+                    <td>@(index + 1)</td>
+                    <td>@item.UnitPriceName</td>
+                    <td>@item.Notes</td>
+                    <td class="table-action">
+                        <NavLink class="action-icon"
+                                @onclick="() => UpdateUnitPrice(item.Id)"> <i class="mdi mdi-pencil"></i></NavLink>
+                        <NavLink class="action-icon"
+                                 @onclick="() => DeleteUnitPrice(item.Id)"> <i class="mdi mdi-delete"></i></NavLink>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <p>
+                <em>No elements.</em>
+            </p>
+        }
+    </tbody>
+</table>
+
+@code {
+    public List<UnitPriceDTO>? UnitPrices { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        UnitPrices = await _getUnitPricesFeature.GetUnitPricesAsync();
+    }
+
+    private async Task DeleteUnitPrice(Guid unitId)
+    {
+        await _deleteUnitPriceFeature.DeleteAsync(unitId);
+        UnitPrices = await _getUnitPricesFeature.GetUnitPricesAsync();
+        StateHasChanged();
+    }
+
+    private async Task UpdateUnitPrice(Guid unitId)
+    {
+        Nav.NavigateTo($"/units/update/{unitId}");
+    }
+}

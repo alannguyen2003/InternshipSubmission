@@ -15,4 +15,7 @@ public class UnitPrice : Entity
     [StringLength(1000)]
     [Column("Ghi_Chu")] 
     public string? Notes { get; set; } = null;
+    
+    
+    public virtual ICollection<Product> Products { get; set; }
 }

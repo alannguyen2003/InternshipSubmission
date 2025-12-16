@@ -1,0 +1,123 @@
+﻿@page "/categories/update/{id:guid}"
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@using BusinessObjects.Entities
+@using BusinessObjects.Exceptions
+@using Services.Features.ProductCategory.GetById.Contracts
+@using Services.Features.ProductCategory.Update.Contracts
+@using Services.Features.ProductCategory.Update.Contracts.DTOs
+@inject IGetProductCategoryByIdFeature _getProductCategoryByIdFeature
+@inject IUpdateProductCategoryFeature _updateProductCategoryFeature
+@inject NavigationManager Navigator
+
+<PageTitle>Product Category</PageTitle>
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Product Category</a></li>
+                    <li class="breadcrumb-item"><a href="/units">List</a></li>
+                    <li class="breadcrumb-item">Update</li>
+                </ol>
+            </div>
+            <h4 class="page-title">
+                <NavLink href="/categories" class="btn btn-primary">Go back</NavLink>
+            </h4>
+        </div>
+    </div>
+</div>     
+<!-- end page title --> 
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Update product category</h4>
+                <p class="text-muted font-14">
+                    ...
+                </p>
+
+                <div class="tab-content">
+                    <div class="tab-pane show active" id="input-types-preview">
+                        <div class="row">
+                            @if (ProductCategory is null)
+                            {
+                                <p><em>Loading...</em></p>
+                            }
+                            else
+                            {
+                                <div class="col-lg-6">
+                                    <EditForm Model="ProductCategory" OnValidSubmit="UpdateProductCategory">
+                                        <div class="mb-3">
+                                            <label for="id" class="form-label">Product Category Id</label>
+                                            <input type="text" id="id" disabled class="form-control" @bind="ProductCategory.Id">
+                                        </div>
+                                    
+                                        <div class="mb-3">
+                                            <label for="categoryCode" class="form-label">Product Category Code</label>
+                                            <input type="text" id="categoryCode" disabled class="form-control" @bind="ProductCategory.CategoryCode">
+                                        </div>
+                                    
+                                        <div class="mb-3">
+                                            <label for="categoryName" class="form-label">Unit Price</label>
+                                            <input type="text" id="categoryName" class="form-control" @bind="ProductCategory.CategoryName">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label">Notes</label>
+                                            <input type="text" id="notes" class="form-control" @bind="ProductCategory.Notes">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    </EditForm>
+                                </div> <!-- end col -->
+                            }
+
+                        </div>
+                        <!-- end row-->                      
+                    </div> <!-- end preview-->
+                    @if (HasError)
+                    {
+                        <div class="mt-2 alert alert-danger alert-dismissible bg-danger text-white border-0 fade show" role="alert">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <strong>Error - </strong> @Error
+                        </div>
+                    }
+                </div> <!-- end tab-content-->
+            </div> <!-- end card-body -->
+        </div> <!-- end card -->
+    </div><!-- end col -->
+</div><!-- end row -->
+
+@code {
+    private bool HasError { get; set; } = false;
+    private string Error { get; set; }
+
+    [Parameter]
+    public Guid Id { get; set; }
+    
+    public ProductCategory? ProductCategory { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProductCategory = await _getProductCategoryByIdFeature.GetByIdAsync(Id);
+    }
+
+    private async Task UpdateProductCategory()
+    {
+        try
+        {
+            await _updateProductCategoryFeature.UpdateAsync(ProductCategory);
+            Navigator.NavigateTo("/categories");
+        }
+        catch (BusinessException ex)
+        {
+            HasError = true;
+            Error = ex.Message;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

@@ -1,0 +1,100 @@
+﻿@page "/categories/create"
+@rendermode InteractiveServer
+@using BusinessObjects.Exceptions
+@using Services.Features.ProductCategory.Create.Contracts
+@using Services.Features.ProductCategory.Create.Contracts.DTOs
+@using Services.Features.UnitPrice.Create.Contracts
+@using Services.Features.UnitPrice.Create.Contracts.DTOs
+@inject ICreateProductCategoryFeature _createProductCategoryFeature
+@inject NavigationManager Navigator
+
+<PageTitle>Product Category</PageTitle>
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Categories</a></li>
+                    <li class="breadcrumb-item"><a href="/units">List</a></li>
+                    <li class="breadcrumb-item">Create</li>
+                </ol>
+            </div>
+            <h4 class="page-title">
+                <NavLink href="/categories" class="btn btn-primary">Go back</NavLink>
+            </h4>
+        </div>
+    </div>
+</div>     
+<!-- end page title --> 
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">Create new product category</h4>
+                <p class="text-muted font-14">
+                    ...
+                </p>
+
+                <div class="tab-content">
+                    <div class="tab-pane show active" id="input-types-preview">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <EditForm Model="CreateProductCategory" OnValidSubmit="CreateNewProductCategory">
+                                    <div class="mb-3">
+                                        <label for="productCategoryName" class="form-label">Unit Price</label>
+                                        <input type="text" id="productCategoryName" class="form-control" @bind="CreateProductCategory.CategoryName">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label">Notes</label>
+                                        <input type="text" id="notes" class="form-control" @bind="CreateProductCategory.Notes">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Create</button>
+                                </EditForm>
+                            </div> <!-- end col -->
+
+                        </div>
+                        <!-- end row-->                      
+                    </div> <!-- end preview-->
+                    @if (HasError)
+                    {
+                        <div class="mt-2 alert alert-danger alert-dismissible bg-danger text-white border-0 fade show" role="alert">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <strong>Error - </strong> @Error
+                        </div>
+                    }
+                </div> <!-- end tab-content-->
+            </div> <!-- end card-body -->
+        </div> <!-- end card -->
+    </div><!-- end col -->
+</div><!-- end row -->
+
+@code {
+    private bool HasError { get; set; } = false;
+    private string Error { get; set; }
+
+    private ProductCategoryDTO CreateProductCategory { get; set; } = new ProductCategoryDTO()
+    {
+        CategoryName = "",
+        Notes = ""
+    };
+
+    private async Task CreateNewProductCategory()
+    {
+        try
+        {
+            await _createProductCategoryFeature.CreateAsync(CreateProductCategory);
+            Navigator.NavigateTo("/categories");
+        }
+        catch (BusinessException ex)
+        {
+            HasError = true;
+            Error = ex.Message;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}
